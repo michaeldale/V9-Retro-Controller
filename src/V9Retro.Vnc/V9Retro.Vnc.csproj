@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>V9Retro.Vnc</RootNamespace>
+    <Description>UI-free RFB 3.3/3.7/3.8 client for the agent's V9XVNC.EXE.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="V9Retro.Vnc.Tests" />
+  </ItemGroup>
+</Project>

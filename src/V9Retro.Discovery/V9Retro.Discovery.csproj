@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>V9Retro.Discovery</RootNamespace>
+    <Description>mDNS / DNS-SD browser for _v9xremote._tcp.local agents.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="V9Retro.Discovery.Tests" />
+  </ItemGroup>
+</Project>

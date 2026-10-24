@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>V9Retro.Protocol</RootNamespace>
+    <Description>Wire codec and async client for the v9x remote agent protocol v1.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="V9Retro.Protocol.Tests" />
+  </ItemGroup>
+</Project>

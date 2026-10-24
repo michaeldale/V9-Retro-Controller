@@ -1,0 +1,109 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:V9Retro.App.ViewModels"
+             xmlns:svc="using:V9Retro.App.Services"
+             x:Class="V9Retro.App.Views.DashboardView"
+             x:DataType="vm:DashboardViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="24" Spacing="20">
+      <TextBlock Text="Dashboard" Classes="h1" />
+
+      <UniformGrid Columns="4" Height="86">
+        <Border Classes="card" Margin="0,0,10,0">
+          <StackPanel>
+            <TextBlock Text="Agents" Classes="muted" />
+            <TextBlock Text="{Binding TotalCount}" FontSize="28" FontWeight="SemiBold" />
+          </StackPanel>
+        </Border>
+        <Border Classes="card" Margin="5,0">
+          <StackPanel>
+            <TextBlock Text="Online" Foreground="{StaticResource OnlineBrush}" />
+            <TextBlock Text="{Binding OnlineCount}" FontSize="28" FontWeight="SemiBold" />
+          </StackPanel>
+        </Border>
+        <Border Classes="card" Margin="5,0">
+          <StackPanel>
+            <TextBlock Text="Offline" Foreground="{StaticResource OfflineBrush}" />
+            <TextBlock Text="{Binding OfflineCount}" FontSize="28" FontWeight="SemiBold" />
+          </StackPanel>
+        </Border>
+        <Border Classes="card" Margin="10,0,0,0">
+          <StackPanel>
+            <TextBlock Text="Rebooting / off / new" Foreground="{StaticResource RebootingBrush}" />
+            <TextBlock Text="{Binding OtherCount}" FontSize="28" FontWeight="SemiBold" />
+          </StackPanel>
+        </Border>
+      </UniformGrid>
+
+      <Border Classes="card" IsVisible="{Binding IsEmpty}" Padding="30">
+        <StackPanel Spacing="12" HorizontalAlignment="Center">
+          <TextBlock Text="No agents yet" Classes="h2" HorizontalAlignment="Center" />
+          <TextBlock Text="Find machines on your network with discovery, or add one by its address." Classes="muted" />
+          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+            <Button Content="Discover agents" Command="{Binding GoDiscoverCommand}" Classes="accent" />
+            <Button Content="Add your first agent" Command="{Binding AddCommand}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <ItemsControl ItemsSource="{Binding Fleet.Rows}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:AgentRowViewModel">
+            <Button Width="250" Margin="0,0,12,12" Padding="0" Background="Transparent" BorderThickness="0"
+                    HorizontalContentAlignment="Stretch"
+                    Opacity="{Binding Enabled, Converter={x:Static svc:EnabledOpacityConverter.Instance}}"
+                    Command="{Binding $parent[ItemsControl].((vm:DashboardViewModel)DataContext).OpenCommand}"
+                    CommandParameter="{Binding}">
+              <Border Classes="card" Padding="0" ClipToBounds="True">
+                <StackPanel>
+                  <Border Height="150" Background="#0B0D10" CornerRadius="8,8,0,0">
+                    <Panel>
+                      <Image Source="{Binding Thumbnail}" Stretch="Uniform" />
+                      <TextBlock Text="No screenshot yet" Foreground="#6B7280" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                 IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}" />
+                    </Panel>
+                  </Border>
+                  <StackPanel Margin="12,10" Spacing="2">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                      <Ellipse Width="9" Height="9" Margin="0,0,8,0" VerticalAlignment="Center"
+                               Fill="{Binding Status, Converter={x:Static svc:StatusBrushConverter.Instance}}" />
+                      <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Grid.Column="2" Text="{Binding StatusText}" Classes="muted" FontSize="12" />
+                    </Grid>
+                    <TextBlock Text="{Binding Subtitle}" Classes="muted" FontSize="12" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding Cpu}" Classes="muted" FontSize="12" TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <Border Classes="card">
+        <StackPanel>
+          <TextBlock Text="Recent activity" Classes="h2" />
+          <ItemsControl ItemsSource="{Binding Activity}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:EventRow">
+                <Grid ColumnDefinitions="90,140,130,*" Margin="0,3">
+                  <SelectableTextBlock Text="{Binding When}" Classes="muted" VerticalAlignment="Center" />
+                  <Button Grid.Column="1" Content="{Binding Agent}" FontWeight="SemiBold" Padding="0" Background="Transparent"
+                          BorderThickness="0" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" Cursor="Hand" VerticalAlignment="Center"
+                          ToolTip.Tip="Open this agent"
+                          Command="{Binding $parent[ItemsControl].((vm:DashboardViewModel)DataContext).OpenEventCommand}"
+                          CommandParameter="{Binding}" />
+                  <SelectableTextBlock Grid.Column="2" Text="{Binding Label}" VerticalAlignment="Center" />
+                  <SelectableTextBlock Grid.Column="3" Text="{Binding Message}" Classes="muted" TextWrapping="Wrap" VerticalAlignment="Center" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

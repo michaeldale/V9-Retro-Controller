@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>V9Retro.App</RootNamespace>
+    <AssemblyName>V9RetroController</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <TieredPGO>true</TieredPGO>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- MVVM toolkit source generators emit partial members the analyzers flag. -->
+    <NoWarn>$(NoWarn);MVVMTK0045</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="Avalonia.Fonts.Inter" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\AppIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\V9Retro.Core\V9Retro.Core.csproj" />
+    <ProjectReference Include="..\V9Retro.Discovery\V9Retro.Discovery.csproj" />
+    <ProjectReference Include="..\V9Retro.Vnc\V9Retro.Vnc.csproj" />
+    <ProjectReference Include="..\V9Retro.Remote\V9Retro.Remote.csproj" />
+  </ItemGroup>
+</Project>

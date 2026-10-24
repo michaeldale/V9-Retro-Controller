@@ -1,0 +1,13 @@
+[V9RetroRelease]
+Schema=1
+App=v9-retro-controller
+Version=0.2.0
+Build=v0.2.0
+
+[Family.win-x64]
+File=v9-retro-controller-0.2.0-win-x64.zip
+Size=4200
+Sha256=9f48cba1a7dbeaf5a62864b676e8825c6ecef62fa47cc3164739aec58e21f623
+
+[Signature]
+Ed25519=74293ea5b12078fcbecbb8d72fe617fa6743422cc4dd17cbb82512f075ac2f2942137207f7d147b17c339261693683f7ad0df20f7f28714a1e219095b045430c

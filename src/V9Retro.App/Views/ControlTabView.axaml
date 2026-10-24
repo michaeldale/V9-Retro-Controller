@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:V9Retro.App.ViewModels"
+             x:Class="V9Retro.App.Views.ControlTabView"
+             x:DataType="vm:ControlTab">
+  <DockPanel>
+    <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+      <Button Content="Refresh screen" Command="{Binding RefreshScreenCommand}" Margin="0,0,6,6" />
+      <ToggleSwitch IsChecked="{Binding AutoRefresh}" OnContent="Refresh after each action" OffContent="Refresh after each action" Margin="0,0,16,6" />
+      <Button Content="Enter" Command="{Binding KeyCommand}" CommandParameter="enter" Margin="0,0,4,6" />
+      <Button Content="Esc" Command="{Binding KeyCommand}" CommandParameter="esc" Margin="0,0,4,6" />
+      <Button Content="Tab" Command="{Binding KeyCommand}" CommandParameter="tab" Margin="0,0,4,6" />
+      <Button Content="⌫" Command="{Binding KeyCommand}" CommandParameter="backspace" Margin="0,0,4,6" />
+      <Button Content="Del" Command="{Binding KeyCommand}" CommandParameter="delete" Margin="0,0,4,6" />
+      <Button Content="↑" Command="{Binding KeyCommand}" CommandParameter="up" Margin="0,0,4,6" />
+      <Button Content="↓" Command="{Binding KeyCommand}" CommandParameter="down" Margin="0,0,4,6" />
+      <Button Content="←" Command="{Binding KeyCommand}" CommandParameter="left" Margin="0,0,4,6" />
+      <Button Content="→" Command="{Binding KeyCommand}" CommandParameter="right" Margin="0,0,12,6" />
+      <Button Content="Start menu" Command="{Binding KeyCommand}" CommandParameter="start" Margin="0,0,4,6" />
+      <Button Content="Alt+Tab" Command="{Binding KeyCommand}" CommandParameter="alttab" Margin="0,0,4,6" />
+      <Button Content="Alt+F4" Command="{Binding KeyCommand}" CommandParameter="altf4" Margin="0,0,4,6" />
+    </WrapPanel>
+    <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,8,Auto,12,Auto" Margin="0,8,0,0">
+      <TextBox Text="{Binding Text}" Watermark="Text to type on the guest (ASCII)">
+        <TextBox.KeyBindings><KeyBinding Gesture="Enter" Command="{Binding TypeTextCommand}" /></TextBox.KeyBindings>
+      </TextBox>
+      <Button Grid.Column="2" Content="Type" Command="{Binding TypeTextCommand}" />
+      <SelectableTextBlock Grid.Column="4" Text="{Binding Cursor}" Classes="muted" VerticalAlignment="Center" />
+    </Grid>
+    <Border Background="#0B0D10" CornerRadius="6">
+      <Panel>
+        <Image x:Name="ScreenImage" Source="{Binding Screen}" Stretch="Uniform" Cursor="Hand"
+               PointerPressed="ImagePressed" PointerWheelChanged="ImageWheel" />
+        <TextBlock Text="Click Refresh screen, then click on the image to click on the guest. Right-click and double-click work too."
+                   Foreground="#6B7280" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   IsVisible="{Binding Screen, Converter={x:Static ObjectConverters.IsNull}}" />
+      </Panel>
+    </Border>
+  </DockPanel>
+</UserControl>

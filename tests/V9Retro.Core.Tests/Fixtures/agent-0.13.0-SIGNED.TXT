@@ -1,0 +1,13 @@
+[V9xRemoteRelease]
+Schema=1
+App=v9x-remote-agent
+Version=0.13.0
+Build=v0.13.0
+
+[Family.win32]
+File=v9x-remote-agent-0.13.0-win32.zip
+Size=109213
+Sha256=e976894b4570871dfce702999e539f8fedb1237c79ba5b81be610c8f06af05c1
+
+[Signature]
+Ed25519=8f0fcee3257c962beb337b8cd5e1420829296bd381b701b6a5675864104b8f88efedb61b81ceaee1be449898ffb8680c0ba800522255c9f73a4ac9001e4ca100

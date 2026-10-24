@@ -1,0 +1,120 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:V9Retro.App.ViewModels"
+        xmlns:v="using:V9Retro.App.Views"
+        xmlns:svc="using:V9Retro.App.Services"
+        x:Class="V9Retro.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="V9 Retro Controller"
+        Width="1320" Height="860" MinWidth="900" MinHeight="560"
+        WindowStartupLocation="CenterScreen">
+
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Ctrl+K" Command="{Binding OpenPaletteCommand}" />
+    <KeyBinding Gesture="Ctrl+N" Command="{Binding AddAgentCommand}" />
+  </Window.KeyBindings>
+
+  <Window.DataTemplates>
+    <DataTemplate DataType="vm:DashboardViewModel"><v:DashboardView /></DataTemplate>
+    <DataTemplate DataType="vm:AgentsViewModel"><v:AgentsView /></DataTemplate>
+    <DataTemplate DataType="vm:DiscoverViewModel"><v:DiscoverView /></DataTemplate>
+    <DataTemplate DataType="vm:SettingsViewModel"><v:SettingsView /></DataTemplate>
+    <DataTemplate DataType="vm:AgentPageViewModel"><v:AgentPageView /></DataTemplate>
+  </Window.DataTemplates>
+
+  <Panel>
+    <Grid ColumnDefinitions="220,*">
+      <!-- Left rail -->
+      <Border Background="{DynamicResource RailBackground}">
+        <DockPanel Margin="10,14">
+          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="6,0,0,16">
+            <Border Background="#0E7C86" CornerRadius="6" Width="28" Height="28">
+              <TextBlock Text="V9" Foreground="White" FontWeight="Bold" FontFamily="{StaticResource MonoFont}"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <TextBlock Text="Retro Controller" FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center" />
+          </StackPanel>
+          <Button DockPanel.Dock="Bottom" Classes="accent" HorizontalAlignment="Stretch" Margin="0,8,0,0"
+                  IsVisible="{Binding Updates.HasUpdate}" Command="{Binding ShowUpdatesCommand}"
+                  Content="{Binding Updates.AvailableText}" />
+          <TextBlock DockPanel.Dock="Bottom" Text="{Binding HostLabel}" Classes="muted" FontSize="11" TextWrapping="Wrap" Margin="8,8,0,0"
+                     IsVisible="{Binding HostLabel, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+          <ListBox DockPanel.Dock="Top" ItemsSource="{Binding NavItems}" SelectedItem="{Binding SelectedNav}"
+                   Background="Transparent">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:NavItem">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                  <TextBlock Text="{Binding Glyph}" Width="18" TextAlignment="Center" />
+                  <TextBlock Text="{Binding Title}" />
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+
+          <TextBlock DockPanel.Dock="Top" Text="OPEN AGENTS" Classes="muted" FontSize="11" Margin="8,18,0,6"
+                     IsVisible="{Binding !!OpenAgents.Count}" />
+          <ListBox ItemsSource="{Binding OpenAgents}" SelectedItem="{Binding SelectedAgentPage}" Background="Transparent">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:AgentPageViewModel">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                  <Ellipse Width="8" Height="8" Margin="2,0,10,0" VerticalAlignment="Center"
+                           Fill="{Binding Status, Converter={x:Static svc:StatusBrushConverter.Instance}}" />
+                  <TextBlock Grid.Column="1" Text="{Binding RailTitle}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                  <Button Grid.Column="2" Content="✕" Padding="4,0" FontSize="11" Background="Transparent"
+                          ToolTip.Tip="Close"
+                          Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CloseAgentCommand}"
+                          CommandParameter="{Binding}" />
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </DockPanel>
+      </Border>
+
+      <!-- Top bar + page -->
+      <DockPanel Grid.Column="1">
+        <Border DockPanel.Dock="Top" Padding="16,10" BorderBrush="{DynamicResource CardBorder}" BorderThickness="0,0,0,1">
+          <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+            <TextBox Text="{Binding QuickConnectText}" Watermark="Connect directly: 192.168.1.50 or retro98:9869  (Enter)"
+                     MaxWidth="520" HorizontalAlignment="Left" Width="460">
+              <TextBox.KeyBindings>
+                <KeyBinding Gesture="Enter" Command="{Binding QuickConnectCommand}" />
+              </TextBox.KeyBindings>
+            </TextBox>
+            <TextBlock Grid.Column="1" Text="{Binding QuickConnectError}" Foreground="{StaticResource OfflineBrush}"
+                       VerticalAlignment="Center" Margin="10,0" />
+            <Button Grid.Column="2" Content="Search  Ctrl+K" Command="{Binding OpenPaletteCommand}" Margin="0,0,8,0" />
+            <Button Grid.Column="3" Content="+ Add agent" Command="{Binding AddAgentCommand}" Classes="accent" />
+          </Grid>
+        </Border>
+        <Border DockPanel.Dock="Top" Background="{StaticResource OfflineBrush}" Padding="16,6" IsVisible="{Binding ConnectionLost}">
+          <TextBlock Foreground="White" Text="Lost the connection to the host. Reconnecting every few seconds; what you see may be out of date." />
+        </Border>
+        <ContentControl Content="{Binding CurrentPage}" />
+      </DockPanel>
+    </Grid>
+
+    <!-- Command palette -->
+    <Border Background="#66000000" IsVisible="{Binding Palette.IsOpen}" PointerPressed="PaletteBackdropPressed">
+      <Border Classes="card" Width="560" VerticalAlignment="Top" Margin="0,90,0,0" Padding="10"
+              BoxShadow="0 10 40 0 #50000000" PointerPressed="PaletteCardPressed">
+        <StackPanel Spacing="8">
+          <TextBox x:Name="PaletteBox" Text="{Binding Palette.Query}" Watermark="Agent name, address or action (reboot, vnc, screenshot, console…)"
+                   KeyDown="PaletteKeyDown" />
+          <ListBox ItemsSource="{Binding Palette.Results}" SelectedItem="{Binding Palette.Selected}" MaxHeight="380"
+                   DoubleTapped="PaletteDoubleTapped">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:PaletteItem">
+                <StackPanel>
+                  <TextBlock Text="{Binding Title}" />
+                  <TextBlock Text="{Binding Subtitle}" Classes="muted" FontSize="12" />
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </StackPanel>
+      </Border>
+    </Border>
+  </Panel>
+</Window>

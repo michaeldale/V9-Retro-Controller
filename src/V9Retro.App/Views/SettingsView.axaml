@@ -1,0 +1,136 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:V9Retro.App.ViewModels"
+             x:Class="V9Retro.App.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="24" Spacing="16" MaxWidth="760" HorizontalAlignment="Left">
+      <TextBlock Text="Settings" Classes="h1" />
+
+      <Border Classes="card">
+        <StackPanel Spacing="14">
+          <TextBlock Text="Background polling" Classes="h2" />
+          <ItemsControl ItemsSource="{Binding Numbers}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:IntSettingViewModel">
+                <Grid ColumnDefinitions="*,140" Margin="0,0,0,12">
+                  <StackPanel>
+                    <TextBlock Text="{Binding Label}" />
+                    <TextBlock Text="{Binding Help}" Classes="muted" FontSize="12" TextWrapping="Wrap" />
+                  </StackPanel>
+                  <NumericUpDown Grid.Column="1" Value="{Binding Value}" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                                 Increment="1" FormatString="0" VerticalAlignment="Center" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card">
+        <StackPanel Spacing="10">
+          <TextBlock Text="App" Classes="h2" />
+          <ToggleSwitch IsChecked="{Binding DiscoveryAutoBrowse}" OnContent="Discover agents automatically (mDNS)"
+                        OffContent="Discover agents automatically (mDNS)" />
+          <ToggleSwitch IsChecked="{Binding CloseToTray}" OnContent="Closing the window keeps polling in the tray"
+                        OffContent="Closing the window keeps polling in the tray" />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card">
+        <StackPanel Spacing="10">
+          <TextBlock Text="Updates" Classes="h2" />
+          <SelectableTextBlock Text="{Binding Updates.VersionText}" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Content="Check for updates" Command="{Binding Updates.CheckCommand}" IsEnabled="{Binding !Updates.Busy}" />
+            <Button Content="Install and restart" Command="{Binding Updates.InstallCommand}" Classes="accent"
+                    IsVisible="{Binding Updates.HasUpdate}" IsEnabled="{Binding !Updates.Busy}" />
+            <ProgressBar IsIndeterminate="True" Width="80" VerticalAlignment="Center" IsVisible="{Binding Updates.Busy}" />
+          </StackPanel>
+          <ProgressBar Value="{Binding Updates.Progress}" Maximum="100" Height="5" IsVisible="{Binding Updates.Progress}" />
+          <SelectableTextBlock Text="{Binding Updates.Status}" TextWrapping="Wrap"
+                               IsVisible="{Binding Updates.Status, Converter={x:Static ObjectConverters.IsNotNull}}" />
+          <Border Classes="card" MaxHeight="260" IsVisible="{Binding Updates.Notes, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <ScrollViewer>
+              <SelectableTextBlock Text="{Binding Updates.Notes}" Classes="mono" FontSize="12" TextWrapping="Wrap" />
+            </ScrollViewer>
+          </Border>
+          <ToggleSwitch IsChecked="{Binding Updates.CheckOnStartup}" OnContent="Check quietly when the app starts"
+                        OffContent="Check quietly when the app starts" />
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap"
+                     Text="Checks michaeldale.com.au. An update is installed only if its release file is signed with the V9x release key and the download matches it." />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card">
+        <StackPanel Spacing="10">
+          <TextBlock Text="Connection" Classes="h2" />
+          <SelectableTextBlock Text="{Binding ModeText}" TextWrapping="Wrap" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Content="Connect to a host…" Command="{Binding ConnectToHostCommand}" IsVisible="{Binding !IsRemote}" />
+            <Button Content="Switch host…" Command="{Binding ConnectToHostCommand}" IsVisible="{Binding IsRemote}" />
+            <Button Content="Use this computer instead" Command="{Binding UseThisComputerCommand}" IsVisible="{Binding IsRemote}" />
+          </StackPanel>
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap"
+                     Text="Connecting to a host (a Windows PC running V9 Retro Controller with remote access on) shares its agents, history and polling. The host does all the agent traffic, so this computer does not need to reach the retro machines." />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card" IsVisible="{Binding IsHost}">
+        <StackPanel Spacing="10">
+          <TextBlock Text="Remote access" Classes="h2" />
+          <Grid ColumnDefinitions="*,Auto">
+            <ToggleSwitch IsChecked="{Binding ServerEnabled}" OnContent="Let other computers connect (HTTPS API)"
+                          OffContent="Let other computers connect (HTTPS API)" IsEnabled="{Binding !ServerBusy}" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <TextBlock Text="Port" VerticalAlignment="Center" />
+              <NumericUpDown Value="{Binding ServerPort}" Minimum="1024" Maximum="65535" FormatString="0" Width="130" />
+            </StackPanel>
+          </Grid>
+          <SelectableTextBlock Text="{Binding ServerStatus}" Classes="muted" TextWrapping="Wrap" />
+          <Grid ColumnDefinitions="110,*" RowDefinitions="Auto,Auto" IsVisible="{Binding !!Fingerprint.Length}">
+            <TextBlock Text="Addresses" Classes="muted" />
+            <SelectableTextBlock Grid.Column="1" Text="{Binding Urls}" Classes="mono" />
+            <TextBlock Grid.Row="1" Text="Fingerprint" Classes="muted" Margin="0,6,0,0" />
+            <SelectableTextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Fingerprint}" Classes="mono" TextWrapping="Wrap" Margin="0,6,0,0" />
+          </Grid>
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Text="Clients" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <Button Grid.Column="1" Content="Add client…" Command="{Binding AddClientCommand}" Classes="accent" />
+          </Grid>
+          <ItemsControl ItemsSource="{Binding Tokens}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:TokenRow">
+                <Grid ColumnDefinitions="*,140,140,Auto" Margin="0,3">
+                  <SelectableTextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="1" Classes="muted" VerticalAlignment="Center"><Run Text="added " /><Run Text="{Binding Created}" /></TextBlock>
+                  <TextBlock Grid.Column="2" Classes="muted" VerticalAlignment="Center"><Run Text="used " /><Run Text="{Binding LastUsed}" /></TextBlock>
+                  <Button Grid.Column="3" Content="Revoke" Classes="danger"
+                          Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).RevokeCommand}" CommandParameter="{Binding}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap"
+                     Text="Each client gets its own token inside a pairing code. The certificate is self-signed; clients pin its fingerprint, so the token is only ever sent to this PC. The tunnel only reaches private LAN addresses. Windows may ask to allow the app through the firewall." />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card" IsVisible="{Binding HasDataDirectory}">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Data" Classes="h2" />
+          <TextBlock Text="Agents, history and screenshots are stored in a SQLite database in:" Classes="muted" />
+          <Grid ColumnDefinitions="*,Auto">
+            <SelectableTextBlock Text="{Binding DataDirectory}" Classes="mono" VerticalAlignment="Center" />
+            <Button Grid.Column="1" Content="Open folder" Command="{Binding OpenDataDirectoryCommand}" />
+          </Grid>
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap"
+                     Text="The v9x agent protocol has no authentication: anyone who can reach an agent's port controls that machine. Keep agents on a trusted network and use AGENT.INI allowed_client." />
+          <TextBlock Classes="muted" FontSize="12">
+            <Run Text="Version " /><Run Text="{Binding Version}" />
+          </TextBlock>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

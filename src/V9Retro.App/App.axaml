@@ -1,0 +1,73 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:svc="using:V9Retro.App.Services"
+             x:Class="V9Retro.App.App"
+             RequestedThemeVariant="Default">
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="RailBackground" Color="#F3F4F6" />
+          <SolidColorBrush x:Key="CardBackground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="CardBorder" Color="#E2E4E8" />
+          <SolidColorBrush x:Key="MutedText" Color="#6B7280" />
+          <SolidColorBrush x:Key="ConsoleBackground" Color="#101418" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="RailBackground" Color="#1B1D21" />
+          <SolidColorBrush x:Key="CardBackground" Color="#24272C" />
+          <SolidColorBrush x:Key="CardBorder" Color="#33373D" />
+          <SolidColorBrush x:Key="MutedText" Color="#9CA3AF" />
+          <SolidColorBrush x:Key="ConsoleBackground" Color="#0B0D10" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+      <SolidColorBrush x:Key="OnlineBrush" Color="#22A55B" />
+      <SolidColorBrush x:Key="OfflineBrush" Color="#E5484D" />
+      <SolidColorBrush x:Key="RebootingBrush" Color="#F5A524" />
+      <SolidColorBrush x:Key="ShutdownBrush" Color="#8B8D98" />
+      <SolidColorBrush x:Key="UnknownBrush" Color="#B4B6BE" />
+      <SolidColorBrush x:Key="WarningBrush" Color="#F5A524" />
+      <FontFamily x:Key="MonoFont">Cascadia Mono,Consolas,Menlo,monospace</FontFamily>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+    <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+
+    <Style Selector="Border.card">
+      <Setter Property="Background" Value="{DynamicResource CardBackground}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="14" />
+    </Style>
+    <Style Selector=":is(TextBlock).h1">
+      <Setter Property="FontSize" Value="22" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector=":is(TextBlock).h2">
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+    <Style Selector=":is(TextBlock).muted">
+      <Setter Property="Foreground" Value="{DynamicResource MutedText}" />
+    </Style>
+    <Style Selector=":is(TextBlock).mono">
+      <Setter Property="FontFamily" Value="{StaticResource MonoFont}" />
+    </Style>
+    <Style Selector="TextBox.mono">
+      <Setter Property="FontFamily" Value="{StaticResource MonoFont}" />
+    </Style>
+    <Style Selector="DataGrid">
+      <Setter Property="svc:GridCopy.Enabled" Value="True" />
+    </Style>
+    <Style Selector="Button.toolbar">
+      <Setter Property="Padding" Value="10,5" />
+    </Style>
+    <Style Selector="Button.danger">
+      <Setter Property="Foreground" Value="{StaticResource OfflineBrush}" />
+    </Style>
+  </Application.Styles>
+</Application>

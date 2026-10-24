@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:V9Retro.App.ViewModels"
+             x:Class="V9Retro.App.Views.ConsoleTabView"
+             x:DataType="vm:ConsoleTab">
+  <DockPanel>
+    <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+      <ToggleSwitch IsChecked="{Binding DirectMode}" OnContent="Run program directly" OffContent="Shell (COMMAND.COM / CMD.EXE)" Margin="0,0,16,0" />
+      <TextBlock Text="Folder" VerticalAlignment="Center" Margin="0,0,6,0" />
+      <TextBox Text="{Binding WorkingDirectory}" Watermark="agent's current" Width="200" Classes="mono" Margin="0,0,16,0" />
+      <TextBlock Text="Timeout (s)" VerticalAlignment="Center" Margin="0,0,6,0" />
+      <NumericUpDown Value="{Binding TimeoutSeconds}" Minimum="1" Maximum="3600" FormatString="0" Width="120" Margin="0,0,16,0" />
+      <CheckBox Content="Show window" IsChecked="{Binding ShowWindow}" Margin="0,0,12,0" />
+      <CheckBox Content="Detach (don't wait)" IsChecked="{Binding Detach}" />
+    </WrapPanel>
+    <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,8,Auto,8,Auto,8,Auto" Margin="0,8,0,0">
+      <TextBox Text="{Binding Command}" Classes="mono" Watermark="dir C:\   (Enter runs, Up/Down history, Ctrl+C cancels)"
+               KeyDown="CommandKeyDown" />
+      <Button Grid.Column="2" Content="Run" Command="{Binding RunCommandCommand}" Classes="accent" IsEnabled="{Binding !Running}" />
+      <Button Grid.Column="4" Content="Cancel" Command="{Binding CancelCommand}" IsEnabled="{Binding Running}" />
+      <Button Grid.Column="6" Content="Clear" Command="{Binding ClearCommand}" />
+    </Grid>
+    <TextBox x:Name="OutputBox" Text="{Binding Output}" IsReadOnly="True" Classes="mono" FontSize="13" AcceptsReturn="True"
+             TextWrapping="NoWrap" Background="{DynamicResource ConsoleBackground}" Foreground="#D6E2E1"
+             ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+  </DockPanel>
+</UserControl>

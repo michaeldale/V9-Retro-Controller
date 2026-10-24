@@ -1,0 +1,67 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:V9Retro.App.ViewModels"
+        x:Class="V9Retro.App.Views.AgentEditWindow"
+        x:DataType="vm:AgentEditViewModel"
+        Title="{Binding Title}"
+        Width="520" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+  <StackPanel Margin="20" Spacing="10">
+    <TextBlock Text="{Binding Title}" Classes="h1" />
+
+    <TextBlock Text="Display name" />
+    <TextBox Text="{Binding Name}" Watermark="Filled from the computer name when you test" />
+
+    <Grid ColumnDefinitions="*,12,120">
+      <StackPanel>
+        <TextBlock Text="Address" Margin="0,0,0,4" />
+        <TextBox Text="{Binding Host}" Watermark="192.168.1.50 or host name" />
+      </StackPanel>
+      <StackPanel Grid.Column="2">
+        <TextBlock Text="Port" Margin="0,0,0,4" />
+        <NumericUpDown Value="{Binding Port}" Minimum="1" Maximum="65535" FormatString="0" />
+      </StackPanel>
+    </Grid>
+
+    <StackPanel Orientation="Horizontal" Spacing="10">
+      <Button Content="Test connection" Command="{Binding TestCommand}" />
+      <ProgressBar IsIndeterminate="True" Width="80" IsVisible="{Binding Testing}" />
+    </StackPanel>
+    <Border Classes="card" Padding="10" IsVisible="{Binding TestResult, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <SelectableTextBlock Text="{Binding TestResult}" TextWrapping="Wrap" />
+    </Border>
+
+    <ToggleSwitch IsChecked="{Binding Enabled}" OnContent="Poll this agent in the background" OffContent="Polling paused" />
+
+    <TextBlock Text="Notes" />
+    <TextBox Text="{Binding Notes}" AcceptsReturn="True" Height="60" TextWrapping="Wrap" />
+
+    <Expander Header="VNC" HorizontalAlignment="Stretch">
+      <StackPanel Spacing="8">
+        <Grid ColumnDefinitions="120,12,*">
+          <StackPanel>
+            <TextBlock Text="VNC port" Margin="0,0,0,4" />
+            <NumericUpDown Value="{Binding VncPort}" Minimum="1" Maximum="65535" FormatString="0" />
+          </StackPanel>
+          <StackPanel Grid.Column="2">
+            <TextBlock Text="VNC password (saved encrypted)" Margin="0,0,0,4" />
+            <TextBox Text="{Binding VncPassword}" PasswordChar="•" MaxLength="8"
+                     Watermark="{Binding HasVncPassword, Converter={x:Static vm:Converters.PasswordHint}}" />
+          </StackPanel>
+        </Grid>
+        <CheckBox Content="Forget the saved VNC password" IsChecked="{Binding ClearVncPassword}" IsVisible="{Binding HasVncPassword}" />
+      </StackPanel>
+    </Expander>
+
+    <SelectableTextBlock Text="{Binding Error}" Foreground="{StaticResource OfflineBrush}" TextWrapping="Wrap"
+               IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+    <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,8,0,0">
+      <Button Content="Delete agent" Classes="danger" Command="{Binding DeleteCommand}" IsVisible="{Binding !IsNew}" />
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+        <Button Content="Cancel" Command="{Binding CancelCommand}" IsCancel="True" />
+        <Button Content="Save" Command="{Binding SaveCommand}" Classes="accent" IsDefault="True" />
+      </StackPanel>
+    </Grid>
+  </StackPanel>
+</Window>

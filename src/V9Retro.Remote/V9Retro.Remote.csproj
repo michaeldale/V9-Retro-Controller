@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>V9Retro.Remote</RootNamespace>
+    <Description>Backends for the UI: the local CoreHost, the HTTPS API that shares it, and the client that uses it from another machine.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\V9Retro.Core\V9Retro.Core.csproj" />
+    <ProjectReference Include="..\V9Retro.Discovery\V9Retro.Discovery.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="V9Retro.Remote.Tests" />
+  </ItemGroup>
+</Project>

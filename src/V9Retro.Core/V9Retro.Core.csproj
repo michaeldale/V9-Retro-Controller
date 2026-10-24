@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>V9Retro.Core</RootNamespace>
+    <Description>SQLite store, status poller and agent services shared by the app and a future service host.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\V9Retro.Protocol\V9Retro.Protocol.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\Migrations\*.sql" />
+    <InternalsVisibleTo Include="V9Retro.Core.Tests" />
+    <InternalsVisibleTo Include="V9Retro.Remote" />
+  </ItemGroup>
+</Project>

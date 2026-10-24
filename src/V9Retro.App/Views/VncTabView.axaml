@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:V9Retro.App.ViewModels"
+             xmlns:v="using:V9Retro.App.Views"
+             x:Class="V9Retro.App.Views.VncTabView"
+             x:DataType="vm:VncTab">
+  <DockPanel>
+    <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+      <Button Content="Connect" Command="{Binding ConnectCommand}" IsVisible="{Binding !Connected}" Classes="accent" Margin="0,0,6,6" />
+      <Button Content="Disconnect" Command="{Binding DisconnectCommand}" IsVisible="{Binding Connected}" Margin="0,0,6,6" />
+      <ToggleSwitch IsChecked="{Binding ScaleToFit}" OnContent="Fit to window" OffContent="Actual size" Margin="0,0,12,6" />
+      <ToggleSwitch IsChecked="{Binding ViewOnly}" OnContent="View only" OffContent="View only" Margin="0,0,12,6" />
+      <Button Content="Ctrl+Alt+Del" Command="{Binding CtrlAltDelCommand}" IsEnabled="{Binding Connected}" Margin="0,0,4,6" />
+      <Button Content="Start menu" Command="{Binding SendKeysCommand}" CommandParameter="start" IsEnabled="{Binding Connected}" Margin="0,0,4,6" />
+      <Button Content="Alt+Tab" Command="{Binding SendKeysCommand}" CommandParameter="alttab" IsEnabled="{Binding Connected}" Margin="0,0,4,6" />
+      <Button Content="Alt+F4" Command="{Binding SendKeysCommand}" CommandParameter="altf4" IsEnabled="{Binding Connected}" Margin="0,0,4,6" />
+      <Button Content="Paste clipboard" Command="{Binding PasteClipboardCommand}" IsEnabled="{Binding Connected}" Margin="0,0,4,6" />
+      <Button Content="Pop out" Command="{Binding PopOutCommand}" IsEnabled="{Binding Connected}" Margin="0,0,12,6" />
+      <SelectableTextBlock Text="{Binding Status}" Classes="muted" VerticalAlignment="Center" Margin="0,0,0,6" />
+    </WrapPanel>
+    <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,8" IsVisible="{Binding NotRunning}">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock Text="The VNC server is not running or not enabled on this machine." VerticalAlignment="Center" />
+        <Button Content="Start or enable it…" Command="{Binding GoToMaintenanceCommand}" />
+      </StackPanel>
+    </Border>
+    <Border Background="#0B0D10" CornerRadius="6" ClipToBounds="True">
+      <v:VncView Client="{Binding Client}" ScaleToFit="{Binding ScaleToFit}" ViewOnly="{Binding ViewOnly}" />
+    </Border>
+  </DockPanel>
+</UserControl>

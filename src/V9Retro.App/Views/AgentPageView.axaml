@@ -1,0 +1,355 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:V9Retro.App.ViewModels"
+             xmlns:v="using:V9Retro.App.Views"
+             xmlns:svc="using:V9Retro.App.Services"
+             x:Class="V9Retro.App.Views.AgentPageView"
+             x:DataType="vm:AgentPageViewModel">
+
+  <UserControl.DataTemplates>
+    <!-- Overview -->
+    <DataTemplate DataType="vm:OverviewTab">
+      <Grid ColumnDefinitions="*,16,340">
+        <Border Classes="card">
+          <DockPanel>
+            <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+              <TextBlock Text="Screen" Classes="h2" Margin="0" VerticalAlignment="Center" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <ToggleSwitch IsChecked="{Binding Live}" OnContent="Live" OffContent="Live" IsEnabled="{Binding CanScreenshot}" />
+                <ComboBox ItemsSource="{x:Static vm:OverviewTab.LiveIntervals}" SelectedItem="{Binding LiveSeconds}" Width="120">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="x:Int32">
+                      <TextBlock Text="{Binding Converter={x:Static vm:Converters.LiveLabel}}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Content="Take screenshot" Command="{Binding TakeScreenshotCommand}" IsEnabled="{Binding CanScreenshot}" Classes="accent" />
+                <Button Content="Save PNG" Command="{Binding SavePngCommand}" />
+              </StackPanel>
+            </Grid>
+            <SelectableTextBlock DockPanel.Dock="Bottom" Text="{Binding ScreenCaption}" Classes="muted" FontSize="12" Margin="0,8,0,0" />
+            <ItemsControl DockPanel.Dock="Bottom" ItemsSource="{Binding History}" Margin="0,10,0,0">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="6" /></ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ShotThumb">
+                  <Button Padding="2" ToolTip.Tip="{Binding Caption}"
+                          Command="{Binding $parent[ItemsControl].((vm:OverviewTab)DataContext).SelectHistoryCommand}"
+                          CommandParameter="{Binding}">
+                    <Image Source="{Binding Image}" Height="54" Stretch="Uniform" />
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Border Background="#0B0D10" CornerRadius="6" MinHeight="300">
+              <Panel>
+                <Button Background="Transparent" Padding="0" BorderThickness="0" Command="{Binding OpenFullCommand}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ToolTip.Tip="Open full size">
+                  <Image Source="{Binding Screen}" Stretch="Uniform" />
+                </Button>
+                <TextBlock Text="No screenshot yet" Foreground="#6B7280" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           IsVisible="{Binding Screen, Converter={x:Static ObjectConverters.IsNull}}" />
+              </Panel>
+            </Border>
+          </DockPanel>
+        </Border>
+
+        <ScrollViewer Grid.Column="2">
+          <StackPanel Spacing="16">
+            <Border Classes="card">
+              <StackPanel>
+                <TextBlock Text="System" Classes="h2" />
+                <ItemsControl ItemsSource="{Binding System}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:InfoRow">
+                      <StackPanel Margin="0,0,0,8">
+                        <SelectableTextBlock Text="{Binding Label}" Classes="muted" FontSize="12" />
+                        <SelectableTextBlock Text="{Binding Value}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+            <Border Classes="card">
+              <StackPanel>
+                <TextBlock Text="Activity" Classes="h2" />
+                <ItemsControl ItemsSource="{Binding Page.Activity}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:EventRow">
+                      <StackPanel Margin="0,0,0,8">
+                        <SelectableTextBlock FontSize="12" Classes="muted"><Run Text="{Binding When}" /><Run Text=" · " /><Run Text="{Binding Label}" /></SelectableTextBlock>
+                        <SelectableTextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+    </DataTemplate>
+
+    <!-- Inventory -->
+    <DataTemplate DataType="vm:InventoryTab">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="0,0,0,12">
+          <Button Content="Refresh inventory" Command="{Binding RefreshCommand}" />
+          <SelectableTextBlock Text="{Binding Updated}" Classes="muted" VerticalAlignment="Center" />
+        </StackPanel>
+        <ScrollViewer>
+          <ItemsControl ItemsSource="{Binding Sections}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:InventorySection">
+                <Border Classes="card" Width="380" Margin="0,0,12,12" VerticalAlignment="Top">
+                  <StackPanel>
+                    <TextBlock Text="{Binding Title}" Classes="h2" />
+                    <ItemsControl ItemsSource="{Binding Lines}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:InventoryLine">
+                          <StackPanel Margin="0,0,0,8">
+                            <Grid ColumnDefinitions="*,Auto">
+                              <SelectableTextBlock Text="{Binding Label}" Classes="muted" FontSize="12" TextWrapping="Wrap" />
+                              <Border Grid.Column="1" Background="{StaticResource WarningBrush}" CornerRadius="4" Padding="6,1"
+                                      IsVisible="{Binding HasWarning}">
+                                <TextBlock Text="{Binding Warning}" Foreground="Black" FontSize="11" />
+                              </Border>
+                            </Grid>
+                            <SelectableTextBlock Text="{Binding Value}" TextWrapping="Wrap" />
+                            <ProgressBar Value="{Binding Percent}" Maximum="100" Height="5" Margin="0,4,0,0" IsVisible="{Binding HasBar}" />
+                          </StackPanel>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </DockPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="vm:ConsoleTab"><v:ConsoleTabView /></DataTemplate>
+    <DataTemplate DataType="vm:FilesTab"><v:FilesTabView /></DataTemplate>
+    <DataTemplate DataType="vm:ControlTab"><v:ControlTabView /></DataTemplate>
+    <DataTemplate DataType="vm:VncTab"><v:VncTabView /></DataTemplate>
+
+    <!-- Processes -->
+    <DataTemplate DataType="vm:ProcessesTab">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,10">
+          <Button Content="Refresh" Command="{Binding RefreshCommand}" />
+          <Button Content="End process" Classes="danger" Command="{Binding KillCommand}" CommandParameter="{x:Null}" />
+        </StackPanel>
+        <DataGrid ItemsSource="{Binding Rows}" SelectedItem="{Binding Selected}" IsReadOnly="True" CanUserSortColumns="True"
+                  GridLinesVisibility="Horizontal">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Name" Binding="{Binding Name}" x:DataType="vm:ProcessRow" Width="180" />
+            <DataGridTextColumn Header="PID" Binding="{Binding Pid}" x:DataType="vm:ProcessRow" Width="100" />
+            <DataGridTextColumn Header="Parent" Binding="{Binding Parent}" x:DataType="vm:ProcessRow" Width="100" />
+            <DataGridTextColumn Header="Threads" Binding="{Binding Threads}" x:DataType="vm:ProcessRow" Width="80" />
+            <DataGridTextColumn Header="" Binding="{Binding Kind}" x:DataType="vm:ProcessRow" Width="90" />
+            <DataGridTextColumn Header="Path" Binding="{Binding Path}" x:DataType="vm:ProcessRow" Width="*" />
+          </DataGrid.Columns>
+        </DataGrid>
+      </DockPanel>
+    </DataTemplate>
+
+    <!-- Registry -->
+    <DataTemplate DataType="vm:RegistryTab">
+      <DockPanel>
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="220,8,*,8,Auto,8,Auto" Margin="0,0,0,10">
+          <ComboBox ItemsSource="{x:Static vm:RegistryTab.Hives}" SelectedItem="{Binding Hive}" HorizontalAlignment="Stretch">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:HiveOption"><TextBlock Text="{Binding Name}" /></DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+          <TextBox Grid.Column="2" Text="{Binding Path}" Classes="mono">
+            <TextBox.KeyBindings><KeyBinding Gesture="Enter" Command="{Binding GoCommand}" /></TextBox.KeyBindings>
+          </TextBox>
+          <Button Grid.Column="4" Content="Go" Command="{Binding GoCommand}" />
+          <Button Grid.Column="6" Content="Up" Command="{Binding UpCommand}" />
+        </Grid>
+        <SelectableTextBlock DockPanel.Dock="Bottom" Text="The answer filled the agent's 16 KiB buffer; some entries are missing." Classes="muted"
+                   IsVisible="{Binding Truncated}" Margin="0,6,0,0" />
+        <Grid ColumnDefinitions="260,12,*">
+          <ListBox ItemsSource="{Binding Subkeys}" SelectedItem="{Binding SelectedSubkey}" x:Name="SubkeyList">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="x:String">
+                <Button Content="{Binding}" Background="Transparent" BorderThickness="0" Padding="0" HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Left"
+                        Command="{Binding $parent[ListBox].((vm:RegistryTab)DataContext).EnterCommand}" CommandParameter="{Binding}" />
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+          <DataGrid Grid.Column="2" ItemsSource="{Binding Values}" IsReadOnly="True" CanUserSortColumns="True" GridLinesVisibility="Horizontal">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Name" Binding="{Binding Name}" x:DataType="vm:RegistryValueRow" Width="200" />
+              <DataGridTextColumn Header="Type" Binding="{Binding Type}" x:DataType="vm:RegistryValueRow" Width="120" />
+              <DataGridTextColumn Header="Data" Binding="{Binding Data}" x:DataType="vm:RegistryValueRow" Width="*" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+      </DockPanel>
+    </DataTemplate>
+
+    <!-- Windows -->
+    <DataTemplate DataType="vm:WindowsTab">
+      <Grid ColumnDefinitions="*,12,Auto">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,10">
+            <Button Content="Refresh" Command="{Binding RefreshCommand}" />
+            <Button Content="Capture window" Command="{Binding CaptureWindowCommand}" CommandParameter="{x:Null}" />
+          </StackPanel>
+          <DataGrid ItemsSource="{Binding Rows}" SelectedItem="{Binding Selected}" IsReadOnly="True" CanUserSortColumns="True"
+                    GridLinesVisibility="Horizontal">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Title" Binding="{Binding Title}" x:DataType="vm:WindowRow" Width="260" />
+              <DataGridTextColumn Header="Class" Binding="{Binding Class}" x:DataType="vm:WindowRow" Width="150" />
+              <DataGridTextColumn Header="Position" Binding="{Binding Bounds}" x:DataType="vm:WindowRow" Width="150" />
+              <DataGridTextColumn Header="State" Binding="{Binding State}" x:DataType="vm:WindowRow" Width="100" />
+              <DataGridTextColumn Header="PID" Binding="{Binding Pid}" x:DataType="vm:WindowRow" Width="*" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+        <Border Grid.Column="2" Classes="card" MaxWidth="520" IsVisible="{Binding Capture, Converter={x:Static ObjectConverters.IsNotNull}}">
+          <Image Source="{Binding Capture}" Stretch="Uniform" />
+        </Border>
+      </Grid>
+    </DataTemplate>
+
+    <!-- Maintenance -->
+    <DataTemplate DataType="vm:MaintenanceTab">
+      <ScrollViewer>
+        <StackPanel Spacing="16" MaxWidth="820" HorizontalAlignment="Left">
+          <Border Classes="card">
+            <StackPanel Spacing="10">
+              <TextBlock Text="VNC server (V9XVNC.EXE)" Classes="h2" />
+              <SelectableTextBlock Text="{Binding VncSummary}" />
+              <WrapPanel>
+                <Button Content="Check" Command="{Binding RefreshVncCommand}" Margin="0,0,8,8" />
+                <Button Content="Start" Command="{Binding StartVncCommand}" Margin="0,0,8,8" />
+                <Button Content="Stop" Command="{Binding StopVncCommand}" Margin="0,0,8,8" />
+                <Button Content="Enable remote control…" Command="{Binding EnableVncCommand}" Margin="0,0,8,8" Classes="accent" />
+                <Button Content="Disable" Command="{Binding DisableVncCommand}" Margin="0,0,8,8" />
+              </WrapPanel>
+              <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap"
+                         Text="Enable runs SETUP.EXE /S /vnc on the guest (enabled=1, autostart at logon, start now) and can set a password of up to 8 characters." />
+            </StackPanel>
+          </Border>
+          <Border Classes="card">
+            <StackPanel Spacing="10">
+              <TextBlock Text="Update agent" Classes="h2" />
+              <TextBlock Text="From michaeldale.com.au" FontWeight="SemiBold" />
+              <SelectableTextBlock Text="{Binding ServerStatus}" TextWrapping="Wrap"
+                                   IsVisible="{Binding ServerStatus, Converter={x:Static ObjectConverters.IsNotNull}}" />
+              <WrapPanel>
+                <Button Content="Check" Command="{Binding CheckServerCommand}" Margin="0,0,8,8" />
+                <Button Content="Update directly (agent downloads)" Command="{Binding UpdateDirectCommand}" Classes="accent"
+                        IsEnabled="{Binding CanSelfUpdate}" Margin="0,0,8,8" />
+                <Button Content="Update through this PC" Command="{Binding UpdateThroughPcCommand}"
+                        IsEnabled="{Binding HasServerUpdate}" Margin="0,0,8,8" />
+              </WrapPanel>
+              <SelectableTextBlock Text="{Binding ServerUpdateHint}" Classes="muted" FontSize="12" TextWrapping="Wrap" />
+              <Border Classes="card" MaxHeight="220" IsVisible="{Binding ServerNotes, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <ScrollViewer>
+                  <SelectableTextBlock Text="{Binding ServerNotes}" Classes="mono" FontSize="12" TextWrapping="Wrap" />
+                </ScrollViewer>
+              </Border>
+              <TextBlock Text="From a package folder" FontWeight="SemiBold" Margin="0,8,0,0" />
+              <TextBlock Classes="muted" TextWrapping="Wrap"
+                         Text="Pick an install package folder (V9XAGNT.EXE and V9XSHOT.EXE; V9XVNC.EXE and SETUP.EXE are replaced too when present). The agent swaps itself without a reboot (agent 0.6.0+)." />
+              <Button Content="Update from folder…" Command="{Binding UpdateAgentCommand}" IsEnabled="{Binding CanUpdate}" HorizontalAlignment="Left" />
+              <SelectableTextBlock Text="{Binding UpdateLog}" Classes="mono" FontSize="12" TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+          <Border Classes="card">
+            <StackPanel Spacing="10">
+              <TextBlock Text="Guest download" Classes="h2" />
+              <TextBlock Classes="muted" Text="The guest fetches an http:// URL itself (no https) and saves it on its own disk." />
+              <TextBox Text="{Binding DownloadUrl}" Watermark="http://server/file.zip" />
+              <TextBox Text="{Binding DownloadPath}" Watermark="C:\path\on\guest (end with \ to keep the file name)" Classes="mono" />
+              <Button Content="Download on guest" Command="{Binding GuestDownloadCommand}" IsEnabled="{Binding CanDownload}" HorizontalAlignment="Left" />
+              <SelectableTextBlock Text="{Binding DownloadResult}" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+    </DataTemplate>
+  </UserControl.DataTemplates>
+
+  <DockPanel Margin="24,18">
+    <!-- Header -->
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+      <StackPanel Spacing="4">
+        <StackPanel Orientation="Horizontal" Spacing="10">
+          <SelectableTextBlock Text="{Binding Name}" Classes="h1" />
+          <Border CornerRadius="10" Padding="10,2" VerticalAlignment="Center"
+                  Background="{Binding Status, Converter={x:Static svc:StatusBrushConverter.Instance}}">
+            <TextBlock Text="{Binding StatusText}" Foreground="White" FontSize="12" />
+          </Border>
+          <TextBlock Text="unsaved" Classes="muted" VerticalAlignment="Center" IsVisible="{Binding !IsSaved}" />
+        </StackPanel>
+        <SelectableTextBlock Classes="muted" FontSize="12">
+          <Run Text="{Binding Address}" /><Run Text="  ·  " /><Run Text="{Binding LastSeen}" /><Run Text="  ·  " /><Run Text="{Binding InstallId}" />
+        </SelectableTextBlock>
+      </StackPanel>
+      <WrapPanel Grid.Column="1" VerticalAlignment="Top">
+        <TextBlock Text="{Binding Busy}" Classes="muted" VerticalAlignment="Center" Margin="0,0,10,0" />
+        <Button Content="Refresh" Command="{Binding RefreshCommand}" Margin="0,0,6,0" ToolTip.Tip="Poll now and refresh inventory" />
+        <Button Content="Save agent" Command="{Binding SaveCommand}" IsVisible="{Binding !IsSaved}" Classes="accent" Margin="0,0,6,0" />
+        <Button Content="Edit" Command="{Binding EditCommand}" IsVisible="{Binding IsSaved}" Margin="0,0,6,0" />
+        <SplitButton Content="Reboot" Command="{Binding RebootCommand}" IsEnabled="{Binding CanPower}">
+          <SplitButton.Flyout>
+            <MenuFlyout>
+              <MenuItem Header="Reboot" Command="{Binding RebootCommand}" />
+              <MenuItem Header="Shut down" Command="{Binding ShutdownCommand}" />
+              <MenuItem Header="Hard reset (Win9x, agent 0.10+)" Command="{Binding ResetCommand}" IsEnabled="{Binding CanReset}" />
+            </MenuFlyout>
+          </SplitButton.Flyout>
+        </SplitButton>
+      </WrapPanel>
+    </Grid>
+
+    <Border DockPanel.Dock="Top" Background="{StaticResource WarningBrush}" CornerRadius="6" Padding="12,8" Margin="0,0,0,10"
+            IsVisible="{Binding Banner, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <Grid ColumnDefinitions="*,Auto">
+        <SelectableTextBlock Text="{Binding Banner}" Foreground="Black" TextWrapping="Wrap" VerticalAlignment="Center" />
+        <Button Grid.Column="1" Content="Track the new machine" Command="{Binding ResolveConflictCommand}" IsVisible="{Binding HasConflict}" />
+      </Grid>
+    </Border>
+    <SelectableTextBlock DockPanel.Dock="Top" Text="{Binding Error}" Foreground="{StaticResource OfflineBrush}" TextWrapping="Wrap" Margin="0,0,0,8"
+               IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+    <TabControl ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" Padding="0,12,0,0">
+      <TabControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:AgentTabViewModel">
+          <TextBlock Text="{Binding Title}" FontSize="14" />
+        </DataTemplate>
+      </TabControl.ItemTemplate>
+      <TabControl.ContentTemplate>
+        <DataTemplate x:DataType="vm:AgentTabViewModel">
+          <DockPanel>
+            <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,10" IsVisible="{Binding Unavailable, Converter={x:Static ObjectConverters.IsNotNull}}">
+              <SelectableTextBlock Text="{Binding Unavailable}" TextWrapping="Wrap" />
+            </Border>
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8"
+                        IsVisible="{Binding Busy, Converter={x:Static ObjectConverters.IsNotNull}}">
+              <ProgressBar IsIndeterminate="True" Width="80" VerticalAlignment="Center" />
+              <TextBlock Text="{Binding Busy}" Classes="muted" />
+            </StackPanel>
+            <SelectableTextBlock DockPanel.Dock="Top" Text="{Binding Error}" Foreground="{StaticResource OfflineBrush}" TextWrapping="Wrap" Margin="0,0,0,8"
+                       IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <ContentControl Content="{Binding}" />
+          </DockPanel>
+        </DataTemplate>
+      </TabControl.ContentTemplate>
+    </TabControl>
+  </DockPanel>
+</UserControl>

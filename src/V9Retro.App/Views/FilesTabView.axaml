@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:V9Retro.App.ViewModels"
+             x:Class="V9Retro.App.Views.FilesTabView"
+             x:DataType="vm:FilesTab"
+             DragDrop.AllowDrop="True">
+  <DockPanel>
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,8,*,8,Auto" Margin="0,0,0,8">
+      <Button Content="Up" Command="{Binding UpCommand}" />
+      <TextBox Grid.Column="2" Text="{Binding Path}" Classes="mono">
+        <TextBox.KeyBindings><KeyBinding Gesture="Enter" Command="{Binding RefreshCommand}" /></TextBox.KeyBindings>
+      </TextBox>
+      <Button Grid.Column="4" Content="Go" Command="{Binding RefreshCommand}" />
+    </Grid>
+    <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+      <Button Content="Upload…" Command="{Binding UploadCommand}" IsEnabled="{Binding CanWrite}" Margin="0,0,6,0" />
+      <Button Content="Download…" Command="{Binding DownloadCommand}" CommandParameter="{x:Null}" Margin="0,0,6,0" />
+      <Button Content="New folder…" Command="{Binding NewFolderCommand}" IsEnabled="{Binding CanWrite}" Margin="0,0,6,0" />
+      <Button Content="View text" Command="{Binding ViewCommand}" CommandParameter="{x:Null}" IsEnabled="{Binding HasFileTools}" Margin="0,0,6,0" />
+      <Button Content="Hash" Command="{Binding HashCommand}" CommandParameter="{x:Null}" IsEnabled="{Binding HasFileTools}" Margin="0,0,6,0" />
+      <Button Content="Delete…" Command="{Binding DeleteCommand}" CommandParameter="{x:Null}" IsEnabled="{Binding HasFileTools}" Classes="danger" Margin="0,0,16,0" />
+      <TextBlock Text="Drop files here to upload into this folder" Classes="muted" VerticalAlignment="Center" />
+    </WrapPanel>
+    <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0" IsVisible="{Binding TransferText, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding TransferText}" Classes="muted" />
+      <ProgressBar Value="{Binding Progress}" Maximum="100" Height="6" Margin="0,4,0,0" />
+    </StackPanel>
+    <DataGrid ItemsSource="{Binding Entries}" SelectedItem="{Binding Selected}" IsReadOnly="True" CanUserSortColumns="True"
+              GridLinesVisibility="Horizontal" DoubleTapped="GridDoubleTapped">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="" Binding="{Binding Icon}" x:DataType="vm:FileRow" Width="36" />
+        <DataGridTextColumn Header="Name" Binding="{Binding Name}" x:DataType="vm:FileRow" Width="320" />
+        <DataGridTextColumn Header="Size" Binding="{Binding Size}" SortMemberPath="SizeSort" x:DataType="vm:FileRow" Width="110" />
+        <DataGridTextColumn Header="Attributes" Binding="{Binding Attributes}" x:DataType="vm:FileRow" Width="*" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>
